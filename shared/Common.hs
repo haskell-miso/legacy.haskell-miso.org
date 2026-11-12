@@ -65,9 +65,9 @@ type Routes a =
     :<|> Home a
     :<|> The404 a
 -----------------------------------------------------------------------------
-type ClientRoutes = Routes (View Model Action)
+type ClientRoutes = Routes (View () () Model Action)
 -----------------------------------------------------------------------------
-type HaskellMisoComponent = Component ROOT () Model Action
+type HaskellMisoComponent = Component () () Model Action
 -----------------------------------------------------------------------------
 uriHome, uriExamples, uriDocs, uriCommunity, uri404 :: R.URI
 uriExamples :<|> uriDocs :<|> uriCommunity :<|> uriHome :<|> uri404 =
@@ -76,11 +76,11 @@ uriExamples :<|> uriDocs :<|> uriCommunity :<|> uriHome :<|> uri404 =
 newtype Page = Page HaskellMisoComponent
 -----------------------------------------------------------------------------
 clientHandlers
-  :: (Model -> View Model Action)
-     :<|> (Model -> View Model Action)
-     :<|> (Model -> View Model Action)
-     :<|> (Model -> View Model Action)
-     :<|> (Model -> View Model Action)
+  :: (Model -> View () () Model Action)
+     :<|> (Model -> View () () Model Action)
+     :<|> (Model -> View () () Model Action)
+     :<|> (Model -> View () () Model Action)
+     :<|> (Model -> View () () Model Action)
 clientHandlers =
   examples
     :<|> docs
@@ -101,12 +101,12 @@ haskellMiso :: R.URI -> App Model Action
 haskellMiso currentUri = component emptyModel updateModel viewModel
   where
     emptyModel = Model currentUri False
-    viewModel _ m =
+    viewModel m =
       case route (Proxy :: Proxy ClientRoutes) clientHandlers _uri m of
         Left _ -> the404 m
         Right view_ -> view_
 -----------------------------------------------------------------------------
-updateModel :: Action -> Effect ROOT props Model Action
+updateModel :: Action -> Effect () () Model Action
 updateModel = \case
   HandleURI u -> do
     uri .= u
@@ -117,7 +117,7 @@ updateModel = \case
     navMenuOpen %= not
 -----------------------------------------------------------------------------
 -- | Views
-community :: Model -> View Model Action
+community :: Model -> View () () Model Action
 community = template $
   H.div_
   [ P.class_ "animated fadeIn"
@@ -172,7 +172,7 @@ community = template $
     ]
   ]
 -----------------------------------------------------------------------------
-docs :: Model -> View Model Action
+docs :: Model -> View () () Model Action
 docs = template $
   H.div_
   [ P.class_ "animated fadeIn" ]
@@ -212,7 +212,7 @@ docs = template $
 misoSrc :: MisoString
 misoSrc = "miso.png"
 -----------------------------------------------------------------------------
-examples :: Model -> View Model Action
+examples :: Model -> View () () Model Action
 examples = template $
   H.div_
   [ P.class_ "animated fadeIn" ]
@@ -276,7 +276,7 @@ examples = template $
     ]
   ]
 -----------------------------------------------------------------------------
-home :: Model -> View Model Action
+home :: Model -> View () () Model Action
 home = template $
   H.div_
   [ P.class_ "animated fadeIn" ]
@@ -311,7 +311,7 @@ home = template $
     ]
   ]
 -----------------------------------------------------------------------------
-template :: View Model Action -> Model -> View Model Action
+template :: View () () Model Action -> Model -> View () () Model Action
 template content m = vfrag
   [ H.a_
     [ P.class_ "github-fork-ribbon left-top fixed"
@@ -327,7 +327,7 @@ template content m = vfrag
   , footer
   ]
 -----------------------------------------------------------------------------
-middle :: View Model action
+middle :: View () () Model action
 middle =
   H.section_
   [ P.class_ "hero" ]
@@ -436,7 +436,7 @@ middle =
     ]
   ]
 
-cols :: View Model action
+cols :: View () () Model action
 cols =
   H.section_
   []
@@ -478,7 +478,7 @@ cols =
     ]
   ]
 -----------------------------------------------------------------------------
-the404 :: Model -> View Model Action
+the404 :: Model -> View () () Model Action
 the404 = template $ vfrag
   [ H.a_
     [ P.href_ "https://github.com/dmjio/miso" ]
@@ -505,7 +505,7 @@ the404 = template $ vfrag
   ]
 -----------------------------------------------------------------------------
 -- | Github stars
-starMiso :: View Model action
+starMiso :: View () () Model action
 starMiso =
   H.a_
   [ P.class_ "github-button"
@@ -518,7 +518,7 @@ starMiso =
   [ "Star"
   ]
 -----------------------------------------------------------------------------
-forkMiso :: View Model action
+forkMiso :: View () () Model action
 forkMiso =
   H.a_
   [ P.class_ "github-button"
@@ -531,7 +531,7 @@ forkMiso =
   [ "Fork" ]
 -----------------------------------------------------------------------------
 -- | Hero
-hero :: View Model Action -> R.URI -> Bool -> View Model Action
+hero :: View () () Model Action -> R.URI -> Bool -> View () () Model Action
 hero content uri' navMenuOpen' =
   H.section_
   [ P.class_ "hero is-medium is-primary is-bold has-text-centered" ]
@@ -626,11 +626,11 @@ hero content uri' navMenuOpen' =
     ]
   ]
 -----------------------------------------------------------------------------
-onPreventClick :: Action -> Attribute Action
+onPreventClick :: Action -> Attribute Model Action
 onPreventClick = E.onClickWithOptions preventDefault
 -----------------------------------------------------------------------------
 -- | Footer
-footer :: View Model action
+footer :: View () () Model action
 footer =
   H.footer_
   [ P.class_ "footer" ]
@@ -691,7 +691,7 @@ footer =
     ]
   ]
 -----------------------------------------------------------------------------
-newNav :: Bool -> View Model Action
+newNav :: Bool -> View () () Model Action
 newNav navMenuOpen' =
   H.div_
   [ P.class_ "container" ]
